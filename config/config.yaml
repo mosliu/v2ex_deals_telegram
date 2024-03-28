@@ -1,0 +1,4 @@
+is_production: true
+chat_id: xxx   # 你的 tg 用户 ID，会作为管理员
+bot_token: xxx:xxxx
+
