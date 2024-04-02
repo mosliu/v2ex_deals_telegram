@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 # from apscheduler.schedulers.background import BackgroundScheduler
@@ -59,6 +60,11 @@ async def fetch_v2ex_job():
 # while True:
 #     pass
 
+async def test_job():
+    print("222222222222222222222222222222222222222222222")
+    logger.info("testing job 222222222222222222")
+
+
 def start_job():
     # fetch_v2ex_job()
     # 创建一个后台调度器
@@ -67,9 +73,12 @@ def start_job():
     # scheduler.add_job(fetch_v2ex_job, 'cron', minute='*')
     # scheduler.add_job(fetch_v2ex_job, 'cron', second='*')
     scheduler = AsyncIOScheduler()
-    job = scheduler.add_job(fetch_v2ex_job, 'interval', seconds=60)
+    job = scheduler.add_job(fetch_v2ex_job, 'interval', seconds=60,next_run_time=datetime.now())
+    # job = scheduler.add_job(test_job, 'interval', seconds=5,next_run_time=datetime.now())
     scheduler.start()
-    asyncio.run(job.func())
+    # asyncio.run(job.func())
     # 开始调度器
     logger.info("start scheduler")
+
+    asyncio.get_event_loop().run_forever()
     # scheduler.start()
