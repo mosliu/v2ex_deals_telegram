@@ -1,4 +1,9 @@
 is_production: true
 chat_id: xxx   # 你的 tg 用户 ID，会作为管理员
+channel_id: -456789
+group_id: -123213
 bot_token: xxx:xxxx
-
+proxy: http://127.0.0.1:7890 # 代理地址，没有代理可以注释掉这行
+listen_ip: 0.0.0.0
+listen_port: 8744
+v2ex_token: xxx

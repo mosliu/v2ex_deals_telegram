@@ -2,7 +2,7 @@ import json
 
 import requests
 
-from preprocess import config
+from configure import config
 
 
 def get_topics(topic_name='all4all'):
