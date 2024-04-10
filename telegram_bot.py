@@ -1,7 +1,7 @@
 # 从 tgbot_funcs.py 导入定义机器人动作的函数
 from multiprocessing import Queue
 
-import configure
+from configure import config, threads
 import log_config
 import service
 import telebot
@@ -12,8 +12,9 @@ if __name__ == '__main__':
     # log_queue = Queue()
     log_config.init()
     controller.init()
-    telebot.init()
+    if config.start_tele_bot:
+        telebot.init()
     service.init()
 
-    for thread in configure.threads:
+    for thread in threads:
         thread.join()

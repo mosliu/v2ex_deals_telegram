@@ -45,10 +45,11 @@ async def fetch_v2ex_job():
             logger.info("got new post")
             # a = asyncio.run(send_message(config.group_id, f"新帖子: {get_post.title} {get_post.url}"))
             # a = await send_message(config.group_id, f"新帖子: {get_post.title} {get_post.url}", parse_mode='MarkdownV2')
-            a = await send_message(config.group_id, get_post.get_post_text_(), parse_mode='MarkdownV2')
+            a = await send_message(config.channel_id, get_post.get_post_text_(), parse_mode='MarkdownV2')
             if a is not None:
                 message_id = a['message_id']
-                get_post.telebot_chat_id = config.group_id
+                # get_post.telebot_chat_id = config.group_id
+                get_post.telebot_chat_id = config.channel_id
                 get_post.telebot_message_id = message_id
             else:
                 get_post.telebot_chat_id = -1

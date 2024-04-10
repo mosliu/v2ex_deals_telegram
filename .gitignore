@@ -162,3 +162,4 @@ cython_debug/
 
 /config/config_shadow.yaml
 /old/
+!/db/v2ex.db

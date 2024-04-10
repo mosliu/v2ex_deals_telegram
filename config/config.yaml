@@ -7,3 +7,5 @@ proxy: http://127.0.0.1:7890 # 代理地址，没有代理可以注释掉这行
 listen_ip: 0.0.0.0
 listen_port: 8744
 v2ex_token: xxx
+start_tele_bot: true # 是否启动 telegram bot
+start_cron_job: true

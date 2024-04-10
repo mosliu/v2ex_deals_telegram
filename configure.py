@@ -80,6 +80,8 @@ class Config(object):
         self.v2ex_token = configs.get('v2ex_token', None)
         self.channel_id = configs.get('channel_id', '')
         self.group_id = configs.get('group_id', '')
+        self.start_tele_bot = configs.get('start_tele_bot', False)
+        self.start_cron_job = configs.get('start_cron_job', False)
         self._proxy_set()
         # self.push_dir = configs.get('push_dir')   # 转发目录
         # self.domain = configs.get('domain')   # 查看转存内容的网址的域名
