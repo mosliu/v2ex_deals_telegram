@@ -5,9 +5,10 @@ from flask import request, jsonify
 from functools import wraps
 
 from configure import config
+from repository import v2ex_post_repo
+from repository.v2ex_post_repo import V2exPost
 from telebot.tgbot_funcs import send_message
 from . import app
-from repository import *
 from service.v2ex_service import get_topics
 from loguru import logger
 import telebot.tgbot_funcs as tgbot
@@ -56,6 +57,7 @@ def format_response(response):
         print(e)
         return response
 
+
 # def format_response(func):
 #     @wraps(func)
 #     def wrapper(*args, **kwargs):
@@ -81,7 +83,7 @@ def send_message():
     # if not all(key in data for key in ('content', 'title', 'author')):
     #     return '缺少必要的字段', 400
     if 'content' not in data:
-        return jsonify({'msg':'缺少必要的字段'}), 400
+        return jsonify({'msg': '缺少必要的字段'}), 400
         # return '缺少必要的字段', 400
     content = data['content']
     if 'send_id' not in data:
@@ -90,6 +92,21 @@ def send_message():
         send_id = data['send_id']
     # 发送消息到 Telegram 频道
     response = asyncio.run(tgbot.send_message(send_id, content))
+
+    if response is not None:
+        get_post = V2exPost(
+            id=send_id,
+            content=content,
+            title='send_message',
+            created=int(time.time()),
+            replies=0,
+            url='',
+            last_modified=int(time.time()),
+            telebot_chat_id=config.telebot_chat_id,
+            telebot_message_id=response['message_id']
+        )
+        v2ex_post_repo.insert_posts(get_post)
+
     print(response)
     # 发送消息到 Telegram 频道
     # if bot and channel_id:

@@ -1,8 +1,7 @@
-from sqlalchemy import create_engine, Column, Integer, String
-
 from sqlalchemy.orm import sessionmaker
 
-from . import engine, V2exPost
+from entity.V2exPost import V2exPost
+from . import engine
 
 Session = sessionmaker(bind=engine)
 
@@ -82,7 +81,6 @@ def delete_posts(v2_post_id):
     session.delete(post)
     session.commit()
     session.close()
-
 
 # # 删除记录
 # post = session.query(V2exPost).filter_by(title='New Title').first()

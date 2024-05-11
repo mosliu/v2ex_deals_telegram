@@ -31,7 +31,8 @@ async def myid(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await context.bot.send_message(chat_id=update.effective_chat.id, text=f'你的 chat id 是 {your_chat_id}')
 
 
-async def transfer(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def message_other_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    logger.info("enter message_other_handler")
     # 定义一些行为
     # 省略
     pass
@@ -64,6 +65,7 @@ async def edit_message_text(chatid, message_id, text, parse_mode=None):
         logger.error(f"{err.__class__.__name__}: {err} happend when editing message")
     return None
 
+
 async def start(update, context):
     keyboard = [[InlineKeyboardButton("Option 1", callback_data='1'),
                  InlineKeyboardButton("Option 2", callback_data='2')]]
@@ -71,6 +73,7 @@ async def start(update, context):
     reply_markup = InlineKeyboardMarkup(keyboard)
 
     await update.message.reply_text('Please choose:', reply_markup=reply_markup)
+
 
 async def button(update, context):
     query = update.callback_query

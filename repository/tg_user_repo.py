@@ -1,13 +1,13 @@
-from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, scoped_session
 
-from . import engine, TgUser,async_engine
+from entity.TgUser import TgUser
+from . import engine, Session
 
-Session = sessionmaker(bind=engine)
 
-async_Session = sessionmaker(async_engine, class_=AsyncSession)
+# async_Session = sessionmaker(async_engine, class_=AsyncSession)
+
 
 def insert_tg_user(tg_user: TgUser) -> TgUser:
     """
@@ -22,23 +22,23 @@ def insert_tg_user(tg_user: TgUser) -> TgUser:
     session.close()
     return tg_user
 
-async def new_tg_user(tg_user: TgUser):
-    """
-         增加记录
-        :param tg_user:
-        :return:
-        """
-    # 异步操作需要在'async with'块内执行
-    async with async_Session() as session:
-        # 异步方式开始事务
-        async with session.begin():
-            # 使用异步session操作数据库
-            session.add(tg_user)
 
-        # 异步提交
-        await session.commit()
-
-
+#
+# async def new_tg_user(tg_user: TgUser):
+#     """
+#          增加记录
+#         :param tg_user:
+#         :return:
+#         """
+#     # 异步操作需要在'async with'块内执行
+#     async with async_Session() as session:
+#         # 异步方式开始事务
+#         async with session.begin():
+#             # 使用异步session操作数据库
+#             session.add(tg_user)
+#
+#         # 异步提交
+#         await session.commit()
 
 
 # session = Session()

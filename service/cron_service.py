@@ -5,7 +5,9 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 # from apscheduler.schedulers.background import BackgroundScheduler
 
 from configure import config
-from repository import *
+from entity.V2exPost import V2exPost
+from entity.TgUser import TgUser
+from repository import v2ex_post_repo
 from telebot.tgbot_funcs import send_message, edit_message_text
 from . import logger, v2ex_service
 import asyncio
@@ -74,7 +76,7 @@ def start_job():
     # scheduler.add_job(fetch_v2ex_job, 'cron', minute='*')
     # scheduler.add_job(fetch_v2ex_job, 'cron', second='*')
     scheduler = AsyncIOScheduler()
-    job = scheduler.add_job(fetch_v2ex_job, 'interval', seconds=60,next_run_time=datetime.now())
+    job = scheduler.add_job(fetch_v2ex_job, 'interval', seconds=60, next_run_time=datetime.now())
     # job = scheduler.add_job(test_job, 'interval', seconds=5,next_run_time=datetime.now())
     scheduler.start()
     # asyncio.run(job.func())
