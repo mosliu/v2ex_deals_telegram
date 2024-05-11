@@ -97,7 +97,7 @@ def get_model_by_attributes(
 def get_models_by_attributes(
         db: Session,
         model: Type[sqlalchemy.orm.decl_api.DeclarativeMeta],
-        query: dict,
+        query_dict: dict,
         offset: int = 0,
         limit: int = 100,
 ) -> list[Type[DeclarativeMeta]]:
@@ -108,7 +108,7 @@ def get_models_by_attributes(
     query = db.query(model)
 
     # 遍历字典的每一项
-    for key, value in dict.items():
+    for key, value in query_dict.items():
         # 检查模型是否有这个属性
         if hasattr(model, key):
             # 如果有，将此属性对应的条件添加到查询中

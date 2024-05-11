@@ -9,3 +9,5 @@ listen_port: 8744
 v2ex_token: xxx
 start_tele_bot: true # 是否启动 telegram bot
 start_cron_job: true
+start_cron_v2ex_job: true
+start_cron_watch_job: true

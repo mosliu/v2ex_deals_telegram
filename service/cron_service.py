@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 # from apscheduler.schedulers.background import BackgroundScheduler
@@ -7,13 +7,18 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from configure import config
 from entity.V2exPost import V2exPost
 from entity.TgUser import TgUser
-from repository import v2ex_post_repo
+from repository import v2ex_post_repo, crud, Session
 from telebot.tgbot_funcs import send_message, edit_message_text
 from . import logger, v2ex_service
 import asyncio
+import re
+from configure import config
+import ahocorasick
 
 
 async def fetch_v2ex_job():
+    if not config.start_cron_v2ex_job:
+        return
     logger.info("start fetching v2ex job")
     got_json = v2ex_service.get_topics()
     results = got_json['result']
@@ -48,6 +53,7 @@ async def fetch_v2ex_job():
             # a = asyncio.run(send_message(config.group_id, f"新帖子: {get_post.title} {get_post.url}"))
             # a = await send_message(config.group_id, f"新帖子: {get_post.title} {get_post.url}", parse_mode='MarkdownV2')
             a = await send_message(config.channel_id, get_post.get_post_text_(), parse_mode='MarkdownV2')
+            await check_and_send_watch(get_post)
             if a is not None:
                 message_id = a['message_id']
                 # get_post.telebot_chat_id = config.group_id
@@ -63,6 +69,84 @@ async def fetch_v2ex_job():
 # while True:
 #     pass
 
+
+user_word_dict = {}
+inverted_index = {}
+aca = ahocorasick.Automaton()
+
+
+def invert_dict(user_word_dict):
+    '''
+    创建倒排索引
+    :param user_word_dict:
+    :return:
+    '''
+
+    inverted_dict = {}
+
+    for user_id, word_list in user_word_dict.items():
+        for word in word_list:
+            # 获得包含当前单词的用户列表的引用
+            # 不存在则返回默认值：空列表
+            user_list = inverted_dict.get(word, [])
+
+            # 把当前的用户ID添加到用户列表中
+            user_list.append(user_id)
+
+            # 更新倒排索引
+            inverted_dict[word] = user_list
+
+    return inverted_dict
+
+
+async def check_and_send_watch(post: V2exPost) -> None:
+    global user_word_dict
+    global inverted_index
+    if post is None:
+        return
+
+    hit_words = []
+    # 开始查找
+    # 该方法 匹配所有字符串
+    for item in aca.iter(post.title):
+        hit_words.append(item)
+    for item in aca.iter(post.content):
+        hit_words.append(item)
+    send_user = []
+    for word in hit_words:
+        users = inverted_index.get(word[1])
+        for userid in users:
+            if userid not in send_user:
+                # send
+                await send_message(userid, post.get_post_text_())
+                send_user.append(userid)
+
+
+async def watch_words_job():
+    global user_word_dict
+    global inverted_index
+    if not config.start_cron_watch_job:
+        return
+    db = Session()
+    users = db.query(TgUser).filter(TgUser.watch_words != None).filter(TgUser.credit > 0).all()
+    user_word_dict.clear()
+    # user_word_dict = {user.tg_id: user.watch_words.split(",") for user in users}
+    user_word_dict = {user.tg_id: re.split(",|，", user.watch_words) for user in users}
+    # print(user_word_dict)
+    inverted_index.clear()
+    inverted_index = invert_dict(user_word_dict)
+    # 将所有的单词串接在一起，形成一个大的列表
+    all_words = [word for word in inverted_index.keys()]
+    # 去重
+    for word in all_words:
+        aca.add_word(word, word)
+
+    # 使用这些单词创建Trie树
+    # for x in range(len(all_words)):
+    #     aca.add_word(all_words[x], (x, all_words[x]))
+    aca.make_automaton()
+
+
 async def test_job():
     print("222222222222222222222222222222222222222222222")
     logger.info("testing job 222222222222222222")
@@ -76,7 +160,9 @@ def start_job():
     # scheduler.add_job(fetch_v2ex_job, 'cron', minute='*')
     # scheduler.add_job(fetch_v2ex_job, 'cron', second='*')
     scheduler = AsyncIOScheduler()
-    job = scheduler.add_job(fetch_v2ex_job, 'interval', seconds=60, next_run_time=datetime.now())
+    job = scheduler.add_job(fetch_v2ex_job, 'interval', seconds=60,
+                            next_run_time=datetime.now() + timedelta(seconds=10))
+    job2 = scheduler.add_job(watch_words_job, 'interval', seconds=600, next_run_time=datetime.now())
     # job = scheduler.add_job(test_job, 'interval', seconds=5,next_run_time=datetime.now())
     scheduler.start()
     # asyncio.run(job.func())
